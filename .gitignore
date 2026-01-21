@@ -8,6 +8,7 @@ venv/
 env/
 ENV/
 .venv
+*.pyc
 
 # Flask
 instance/
@@ -42,9 +43,5 @@ Thumbs.db
 # Logs
 *.log
 
-# Virtual environment
-venv/
-env/
-
 # Test/request files
-body_request*
+body_request/
