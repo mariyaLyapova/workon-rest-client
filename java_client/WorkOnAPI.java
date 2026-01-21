@@ -95,8 +95,11 @@ public class WorkOnAPI {
         payload.put("issuetype", "rbga.issuetype.default");
         payload.put("applicant", applicant.toLowerCase());
         payload.put("priority", "default");
-        payload.put("sourceSystem", sourceSystem);
-        payload.put("data", data);
+
+        // Add sourceSystem to data object, not top level
+        Map<String, Object> dataWithSource = new HashMap<>(data);
+        dataWithSource.put("rbga.field.sourceSystem", sourceSystem);
+        payload.put("data", dataWithSource);
 
         HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
             .uri(URI.create(url))
@@ -138,8 +141,11 @@ public class WorkOnAPI {
         payload.put("issuetype", "rbga.issuetype.default");
         payload.put("applicant", applicant.toLowerCase());
         payload.put("priority", "default");
-        payload.put("sourceSystem", sourceSystem);
-        payload.put("data", data);
+
+        // Add sourceSystem to data object, not top level
+        Map<String, Object> dataWithSource = new HashMap<>(data);
+        dataWithSource.put("rbga.field.sourceSystem", sourceSystem);
+        payload.put("data", dataWithSource);
         payload.put("draft", true); // Indicate this is a draft request
 
         HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()

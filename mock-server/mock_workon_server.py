@@ -77,7 +77,7 @@ def generate_request_key() -> str:
 def validate_rbga_request(payload: Dict[str, Any]) -> tuple[bool, str]:
     """Validate RBGA request payload according to documentation"""
     # Check required top-level fields
-    required_fields = ["summary", "pkey", "issuetype", "applicant", "priority", "sourceSystem", "data"]
+    required_fields = ["summary", "pkey", "issuetype", "applicant", "priority", "data"]
     for field in required_fields:
         if field not in payload:
             return False, f"Missing required field: {field}"
@@ -177,7 +177,7 @@ def create_draft_request():
             "issuetype": payload.get("issuetype", "rbga.issuetype.default"),
             "applicant": payload["applicant"],
             "priority": payload.get("priority", "default"),
-            "sourceSystem": payload.get("sourceSystem", "WorkON"),
+            "sourceSystem": payload.get("data", {}).get("rbga.field.sourceSystem", "WorkON"),
             "data": payload.get("data", {}),
             "created_at": datetime.now().isoformat(),
             "updated_at": datetime.now().isoformat(),
@@ -232,7 +232,7 @@ def create_request():
             "issuetype": payload["issuetype"],
             "applicant": payload["applicant"],
             "priority": payload["priority"],
-            "sourceSystem": payload["sourceSystem"],
+            "sourceSystem": payload.get("data", {}).get("rbga.field.sourceSystem", "WorkON"),
             "data": payload["data"],
             "created_at": datetime.now().isoformat(),
             "updated_at": datetime.now().isoformat(),
