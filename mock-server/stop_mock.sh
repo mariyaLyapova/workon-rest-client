@@ -5,11 +5,11 @@
 
 echo "🛑 Stopping WorkOn RBGA Mock Server..."
 
-# Find and kill Flask processes running on port 5000
-FLASK_PID=$(lsof -ti:5000)
+# Find and kill Flask processes running on port 5001
+FLASK_PID=$(lsof -ti:5001)
 
 if [ ! -z "$FLASK_PID" ]; then
-    echo "🔍 Found Flask process on port 5000 (PID: $FLASK_PID)"
+    echo "🔍 Found Flask process on port 5001 (PID: $FLASK_PID)"
     echo "💀 Killing Flask process..."
     kill -TERM $FLASK_PID
     sleep 2
@@ -22,7 +22,7 @@ if [ ! -z "$FLASK_PID" ]; then
 
     echo "✅ Flask process stopped"
 else
-    echo "ℹ️  No Flask process found on port 5000"
+    echo "ℹ️  No Flask process found on port 5001"
 fi
 
 # Deactivate virtual environment if active

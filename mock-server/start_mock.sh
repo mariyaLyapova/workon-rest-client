@@ -5,7 +5,7 @@
 
 set -e  # Exit on any error
 
-PROJECT_DIR="/Users/bam1sf3/work/personal/pythonLibrary"
+PROJECT_DIR="/Users/bam1sf3/work/personal/workon-rest-client/mock-server"
 VENV_DIR="$PROJECT_DIR/venv"
 MOCK_SERVER="$PROJECT_DIR/mock_workon_server.py"
 

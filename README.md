@@ -117,3 +117,16 @@ Map<String, Object> status = apiClient.getRequestStatus(requestKey);
 ### Java Client
 - Java 11+
 - Jackson JSON library (included)
+
+## Development Notes
+
+- Compiled `.class` files and `.jar` dependencies are excluded from git
+- Test request bodies (`body_request*` files) are excluded from git
+- Jackson libraries are stored locally in `java_client/lib/`
+
+## Contributing
+
+When making changes:
+1. Test with the mock server first
+2. Ensure Java client compiles without errors
+3. Validate against RBGA template requirements

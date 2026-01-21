@@ -30,6 +30,7 @@ public class WorkOnAPI {
 
     private final String baseUrl;
     private final String apiKey;
+    private final String keyId;
     private final HttpClient httpClient;
     private final ObjectMapper objectMapper;
 
@@ -38,14 +39,37 @@ public class WorkOnAPI {
      *
      * @param baseUrl The base URL for the WorkOn API
      * @param apiKey Optional API key for authentication (can be null)
+     * @param keyId Optional Key ID for WorkOn API (can be null)
      */
-    public WorkOnAPI(String baseUrl, String apiKey) {
+    public WorkOnAPI(String baseUrl, String apiKey, String keyId) {
         this.baseUrl = baseUrl.endsWith("/") ? baseUrl.substring(0, baseUrl.length() - 1) : baseUrl;
         this.apiKey = apiKey;
+        this.keyId = keyId;
         this.httpClient = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(10))
             .build();
         this.objectMapper = new ObjectMapper();
+    }
+
+    /**
+     * Add common headers to HTTP request builder
+     */
+    private void addCommonHeaders(HttpRequest.Builder requestBuilder) {
+        requestBuilder.header("Content-Type", "application/json");
+
+        if (keyId != null && !keyId.isEmpty()) {
+            requestBuilder.header("KeyId", keyId);
+        }
+    }
+
+    /**
+     * Initialize the WorkOn API client (backward compatibility)
+     *
+     * @param baseUrl The base URL for the WorkOn API
+     * @param apiKey Optional API key for authentication (can be null)
+     */
+    public WorkOnAPI(String baseUrl, String apiKey) {
+        this(baseUrl, apiKey, null);
     }
 
     /**
@@ -76,13 +100,10 @@ public class WorkOnAPI {
 
         HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
             .uri(URI.create(url))
-            .PUT(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(payload)))
-            .header("Content-Type", "application/json");
+            .PUT(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(payload)));
 
-        // Add authentication header if API key is provided
-        if (apiKey != null && !apiKey.isEmpty()) {
-            requestBuilder.header("Authorization", "Bearer " + apiKey);
-        }
+        // Add common headers (Content-Type, Authorization, KeyId)
+        addCommonHeaders(requestBuilder);
 
         HttpRequest request = requestBuilder.build();
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
@@ -123,13 +144,10 @@ public class WorkOnAPI {
 
         HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
             .uri(URI.create(url))
-            .PUT(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(payload)))
-            .header("Content-Type", "application/json");
+            .PUT(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(payload)));
 
-        // Add authentication header if API key is provided
-        if (apiKey != null && !apiKey.isEmpty()) {
-            requestBuilder.header("Authorization", "Bearer " + apiKey);
-        }
+        // Add common headers (Content-Type, Authorization, KeyId)
+        addCommonHeaders(requestBuilder);
 
         HttpRequest request = requestBuilder.build();
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
@@ -154,13 +172,10 @@ public class WorkOnAPI {
 
         HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
             .uri(URI.create(url))
-            .GET()
-            .header("Content-Type", "application/json");
+            .GET();
 
-        // Add authentication header if API key is provided
-        if (apiKey != null && !apiKey.isEmpty()) {
-            requestBuilder.header("Authorization", "Bearer " + apiKey);
-        }
+        // Add common headers (Content-Type, Authorization, KeyId)
+        addCommonHeaders(requestBuilder);
 
         HttpRequest request = requestBuilder.build();
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
@@ -176,13 +191,14 @@ public class WorkOnAPI {
      * Get detailed information about a WorkOn request
      *
      * @param requestKey The key of the request (e.g., "RBGA-123")
-     * @param customFields List of specific fields to retrieve (e.g., ["rbga.field.description"])
+     * @param customFields List of specific custom fields to retrieve (e.g., ["rbga.field.description"])
+     * @param systemFields List of specific system fields to retrieve (e.g., ["summary", "status"])
      * @param includeApprovalHistory Whether to include approval history
      * @return Map with detailed request information
      * @throws IOException If the API request fails
      * @throws InterruptedException If the request is interrupted
      */
-    public Map<String, Object> getWorkitemDetail(String requestKey, List<String> customFields, boolean includeApprovalHistory)
+    public Map<String, Object> getWorkitemDetail(String requestKey, List<String> customFields, List<String> systemFields, boolean includeApprovalHistory)
             throws IOException, InterruptedException {
 
         String url = baseUrl + "/workitemdetails/" + requestKey;
@@ -194,16 +210,16 @@ public class WorkOnAPI {
         if (customFields != null && !customFields.isEmpty()) {
             payload.put("customFields", customFields);
         }
+        if (systemFields != null && !systemFields.isEmpty()) {
+            payload.put("systemFields", systemFields);
+        }
 
         HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
             .uri(URI.create(url))
-            .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(payload)))
-            .header("Content-Type", "application/json");
+            .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(payload)));
 
-        // Add authentication header if API key is provided
-        if (apiKey != null && !apiKey.isEmpty()) {
-            requestBuilder.header("Authorization", "Bearer " + apiKey);
-        }
+        // Add common headers (Content-Type, Authorization, KeyId)
+        addCommonHeaders(requestBuilder);
 
         HttpRequest request = requestBuilder.build();
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
@@ -241,13 +257,10 @@ public class WorkOnAPI {
 
         HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
             .uri(URI.create(url))
-            .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(payload)))
-            .header("Content-Type", "application/json");
+            .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(payload)));
 
-        // Add authentication header if API key is provided
-        if (apiKey != null && !apiKey.isEmpty()) {
-            requestBuilder.header("Authorization", "Bearer " + apiKey);
-        }
+        // Add common headers (Content-Type, Authorization, KeyId)
+        addCommonHeaders(requestBuilder);
 
         HttpRequest request = requestBuilder.build();
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
@@ -271,7 +284,11 @@ public class WorkOnAPI {
     }
 
     public Map<String, Object> getWorkitemDetail(String requestKey) throws IOException, InterruptedException {
-        return getWorkitemDetail(requestKey, null, false);
+        return getWorkitemDetail(requestKey, null, null, false);
+    }
+
+    public Map<String, Object> getWorkitemDetail(String requestKey, List<String> customFields, boolean includeApprovalHistory) throws IOException, InterruptedException {
+        return getWorkitemDetail(requestKey, customFields, null, includeApprovalHistory);
     }
 
     public Map<String, Object> getAttachments(String requestKey, String user) throws IOException, InterruptedException {

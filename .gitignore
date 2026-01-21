@@ -45,3 +45,6 @@ Thumbs.db
 # Virtual environment
 venv/
 env/
+
+# Test/request files
+body_request*

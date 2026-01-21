@@ -45,6 +45,22 @@ RBGA_FIELDS = {
     "rbga.field.grid": {"type": "array", "required": False}
 }
 
+def check_keyid_header():
+    """Check if KeyId header is present and valid - returns error response or None"""
+    # Check if KeyId header exists at all
+    if 'KeyId' not in request.headers:
+        return (jsonify({"error": "Missing required header: KeyId"}), 400)
+
+    # Get the KeyId value
+    key_id = request.headers.get('KeyId')
+
+    # Check if header value is None, empty string, or only whitespace
+    if not key_id or key_id.strip() == "":
+        return (jsonify({"error": "KeyId header cannot be empty"}), 400)
+
+    # Return None when validation passes
+    return None
+
 def generate_request_key() -> str:
     """Generate a unique RBGA request key in the format RBGA-XXX"""
     # Get highest existing number
@@ -93,6 +109,17 @@ def validate_rbga_request(payload: Dict[str, Any]) -> tuple[bool, str]:
     if workflow_type not in ["Parallel", "Serial"]:
         return False, "rbga.field.workflowType must be 'Parallel' or 'Serial'"
 
+    # Validate parallel workflow selection values (allow your JSON values)
+    valid_parallel_values = [
+        "One approver approves the request",
+        "All the Approvers has to approve",
+        "Only one Approver has to approve"  # Your JSON value
+    ]
+
+    for field in ["rbga.field.parallelWorkflowSel", "rbga.field.parallelWorkflowSel2", "rbga.field.parallelWorkflowSel3"]:
+        if field in data and data[field] not in valid_parallel_values:
+            return False, f"{field} must be one of: {valid_parallel_values}"
+
     # Validate approver structure
     approver1 = data.get("rbga.field.approver1")
     if not isinstance(approver1, dict) or "approvers" not in approver1:
@@ -107,10 +134,13 @@ def validate_rbga_request(payload: Dict[str, Any]) -> tuple[bool, str]:
         if not isinstance(approver, dict):
             return False, f"Approver {i} must be an object"
 
-        required_approver_fields = ["userid", "description"]
-        for field in required_approver_fields:
-            if field not in approver:
-                return False, f"Approver {i} missing required field: {field}"
+        # Required approver fields - description can be empty string
+        if "userid" not in approver:
+            return False, f"Approver {i} missing required field: userid"
+
+        # Allow empty description (as in your JSON)
+        if "description" not in approver:
+            return False, f"Approver {i} missing required field: description"
 
     return True, ""
 
@@ -118,6 +148,11 @@ def validate_rbga_request(payload: Dict[str, Any]) -> tuple[bool, str]:
 def create_draft_request():
     """Create Draft Request API - Creates a draft WorkON request with relaxed validation"""
     try:
+        # Check for required KeyId header
+        keyid_validation = check_keyid_header()
+        if keyid_validation is not None:
+            return keyid_validation
+
         payload = request.get_json()
         if not payload:
             return jsonify({"error": "Request body is required"}), 400
@@ -172,6 +207,11 @@ def create_draft_request():
 def create_request():
     """Create Request API - Creates a new WorkON request"""
     try:
+        # Check for required KeyId header
+        keyid_validation = check_keyid_header()
+        if keyid_validation is not None:
+            return keyid_validation
+
         payload = request.get_json()
         if not payload:
             return jsonify({"error": "Request body is required"}), 400
@@ -231,6 +271,11 @@ def create_request():
 def get_status(request_key: str):
     """Get Status API - Returns the status of a request with internationalized values"""
     try:
+        # Check for required KeyId header
+        keyid_validation = check_keyid_header()
+        if keyid_validation is not None:
+            return keyid_validation
+
         if request_key not in requests_db:
             return jsonify({"error": f"Request with key {request_key} not found"}), 404
 
@@ -274,6 +319,11 @@ def get_status(request_key: str):
 def get_workitem_detail(request_key: str):
     """Get Workitem Detail API - Fetches detailed request information"""
     try:
+        # Check for required KeyId header
+        keyid_validation = check_keyid_header()
+        if keyid_validation is not None:
+            return keyid_validation
+
         if request_key not in requests_db:
             return jsonify({"error": f"Request with key {request_key} not found"}), 404
 
@@ -315,6 +365,11 @@ def get_workitem_detail(request_key: str):
 def get_workitem_attachments(request_key: str):
     """Get Workitem Attachments API - Fetches attachment content"""
     try:
+        # Check for required KeyId header
+        keyid_validation = check_keyid_header()
+        if keyid_validation is not None:
+            return keyid_validation
+
         if request_key not in requests_db:
             return jsonify({"error": f"Request with key {request_key} not found"}), 404
 
@@ -582,6 +637,8 @@ if __name__ == '__main__':
     print(f"❤️  Health check: http://localhost:5001/health")
     print(f"📖 RBGA template: http://localhost:5001/rbga/template")
     print(f"📝 List requests: http://localhost:5001/requests")
+    print("\n🔑 IMPORTANT: All endpoints require KeyId header!")
+    print("   Example: -H \"KeyId: your-key-id-here\"")
     print("\n🎯 5 Core RBGA Operations:")
     print("   1. PUT /createrequest/create - Create Request")
     print("   2. PUT /createdraftrequest/draft - Create Draft Request")

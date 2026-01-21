@@ -12,8 +12,8 @@ public class WorkOnAPIDemo {
             System.out.println("=== RBGA API Demo: 5 Core Operations (Java) ===\n");
 
             // Initialize API client - pointing to mock server
-            WorkOnAPI apiClient = new WorkOnAPI("http://localhost:5001", null);
-            // For production: WorkOnAPI apiClient = new WorkOnAPI("https://workon-api.bosch.com", "your-api-key-here");
+            WorkOnAPI apiClient = new WorkOnAPI("http://localhost:5001", null, "test-key-id");
+            // For production: WorkOnAPI apiClient = new WorkOnAPI("https://workon-api.bosch.com", null, "your-key-id-here");
 
             // Example RBGA data structure according to documentation
             Map<String, Object> rbgaData = createSampleRbgaData();
@@ -56,10 +56,18 @@ public class WorkOnAPIDemo {
                 System.out.println("4. Getting detailed information for request: " + requestKey);
                 List<String> customFields = Arrays.asList(
                     "rbga.field.description",
-                    "rbga.field.comments",
-                    "rbga.field.workflowType"
+                    "common.field.employee.companycode"
                 );
-                Map<String, Object> details = apiClient.getWorkitemDetail(requestKey, customFields, true);
+                List<String> systemFields = Arrays.asList(
+                    "summary",
+                    "reporter",
+                    "created",
+                    "updated",
+                    "assignee",
+                    "status",
+                    "priority"
+                );
+                Map<String, Object> details = apiClient.getWorkitemDetail(requestKey, customFields, systemFields, true);
                 System.out.println("Request details: " + details + "\n");
 
                 // 5. Get Workitem Attachments
@@ -93,50 +101,109 @@ public class WorkOnAPIDemo {
         rbgaData.put("rbga.field.termCheck", "yes");
         rbgaData.put("rbga.field.description", "Request for new software licenses");
         rbgaData.put("rbga.field.comments", "Urgent approval needed for project");
-        rbgaData.put("rbga.field.workflowType", "Parallel");
+        rbgaData.put("rbga.field.workflowType", "Serial");
         rbgaData.put("rbga.field.wf2", "Serial");
         rbgaData.put("rbga.field.wf3", "Serial");
-        rbgaData.put("rbga.field.parallelWorkflowSel", "One approver approves the request");
-        rbgaData.put("rbga.field.parallelWorkflowSel2", "All the Approvers has to approve");
-        rbgaData.put("rbga.field.parallelWorkflowSel3", "All the Approvers has to approve");
+        rbgaData.put("rbga.field.parallelWorkflowSel", "Only one Approver has to approve");
+        rbgaData.put("rbga.field.parallelWorkflowSel2", "Only one Approver has to approve");
+        rbgaData.put("rbga.field.parallelWorkflowSel3", "Only one Approver has to approve");
         rbgaData.put("rbga.field.tempNew", "New Request");
         rbgaData.put("rbga.field.approvalstep", "One Step Approval");
 
+        // External link
+        rbgaData.put("rbga.field.externalLink", "https://www.bosch.com");
+
         // Additional fields
         List<Map<String, String>> additionalFields = new ArrayList<>();
-        Map<String, String> budgetField = new HashMap<>();
-        budgetField.put("fields", "Budget");
-        budgetField.put("details", "5000 EUR");
-        additionalFields.add(budgetField);
+        Map<String, String> targetRevision = new HashMap<>();
+        targetRevision.put("fields", "Target revision");
+        targetRevision.put("details", "Value1");
+        additionalFields.add(targetRevision);
+
+        Map<String, String> previewLink = new HashMap<>();
+        previewLink.put("fields", "Preview link");
+        previewLink.put("details", "https://www.bosch.com");
+        additionalFields.add(previewLink);
+
         rbgaData.put("rbga.field.additionalFields", additionalFields);
 
-        // Approver information
+        // Attachments (like in your JSON)
+        List<Map<String, String>> attachments = new ArrayList<>();
+        Map<String, String> attachment = new HashMap<>();
+        attachment.put("filename", "filename.ext");
+        attachment.put("file", "Base64EncodedString");
+        attachments.add(attachment);
+        rbgaData.put("rbga.field.attach", attachments);
+
+        // Primary approver (rbga.field.approver1)
         Map<String, Object> approver1 = new HashMap<>();
-        List<Map<String, Object>> approvers = new ArrayList<>();
+        List<Map<String, Object>> approvers1 = new ArrayList<>();
 
-        Map<String, Object> approver = new HashMap<>();
-        approver.put("addAfterEnabled", true);
-        approver.put("deleteFlag", "Yes");
-        approver.put("description", "Manager");
-        approver.put("fixed", false);
-        approver.put("removable", true);
-        approver.put("userid", "manager.ntid");
-        approver.put("ccList", "backup.manager");
-        approvers.add(approver);
+        // First approver
+        Map<String, Object> approver1a = new HashMap<>();
+        approver1a.put("addAfterEnabled", true);
+        approver1a.put("deleteFlag", "Yes");
+        approver1a.put("description", "");
+        approver1a.put("fixed", false);
+        approver1a.put("removable", true);
+        approver1a.put("userid", "mrj6cob");
+        approver1a.put("ccList", "");
+        approvers1.add(approver1a);
 
-        approver1.put("approvers", approvers);
+        // Second approver
+        Map<String, Object> approver1b = new HashMap<>();
+        approver1b.put("addAfterEnabled", true);
+        approver1b.put("deleteFlag", "Yes");
+        approver1b.put("description", "");
+        approver1b.put("fixed", false);
+        approver1b.put("removable", true);
+        approver1b.put("userid", "mrj6cob");
+        approver1b.put("ccList", "");
+        approvers1.add(approver1b);
+
+        approver1.put("approvers", approvers1);
         approver1.put("checkDuplicate", "false");
         approver1.put("maxApprover", "20");
         approver1.put("type", "1");
         rbgaData.put("rbga.field.approver1", approver1);
 
-        // Attachments
-        List<Map<String, String>> attachments = new ArrayList<>();
-        Map<String, String> attachment = new HashMap<>();
-        attachment.put("filename", "requirements.pdf");
-        attachment.put("file", "Base64EncodedString"); // Base64 encoded file content
-        attachments.add(attachment);
-        rbgaData.put("rbga.field.attach", attachments);
+        // When approved workflow
+        Map<String, Object> whenApproved = new HashMap<>();
+        List<Map<String, Object>> approversApproved = new ArrayList<>();
+        Map<String, Object> approverApproved = new HashMap<>();
+        approverApproved.put("addAfterEnabled", true);
+        approverApproved.put("deleteFlag", "Yes");
+        approverApproved.put("description", "");
+        approverApproved.put("fixed", false);
+        approverApproved.put("removable", true);
+        approverApproved.put("userid", "mrj6cob");
+        approverApproved.put("ccList", "");
+        approversApproved.add(approverApproved);
+
+        whenApproved.put("approvers", approversApproved);
+        whenApproved.put("checkDuplicate", "false");
+        whenApproved.put("maxApprover", "20");
+        whenApproved.put("type", "1");
+        rbgaData.put("rbga.field.whenApproved", whenApproved);
+
+        // When declined workflow
+        Map<String, Object> whenDeclined = new HashMap<>();
+        List<Map<String, Object>> approversDeclined = new ArrayList<>();
+        Map<String, Object> approverDeclined = new HashMap<>();
+        approverDeclined.put("addAfterEnabled", true);
+        approverDeclined.put("deleteFlag", "Yes");
+        approverDeclined.put("description", "");
+        approverDeclined.put("fixed", false);
+        approverDeclined.put("removable", true);
+        approverDeclined.put("userid", "mrj6cob");
+        approverDeclined.put("ccList", "");
+        approversDeclined.add(approverDeclined);
+
+        whenDeclined.put("approvers", approversDeclined);
+        whenDeclined.put("checkDuplicate", "false");
+        whenDeclined.put("maxApprover", "20");
+        whenDeclined.put("type", "1");
+        rbgaData.put("rbga.field.whenDeclined", whenDeclined);
 
         return rbgaData;
     }
