@@ -13,12 +13,27 @@ ENV/
 instance/
 .webassets-cache
 
+# Java
+*.class
+*.jar
+*.war
+*.ear
+target/
+*.ctxt
+.mtj.tmp/
+hs_err_pid*
+replay_pid*
+
 # IDEs
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
+*.iml
+.classpath
+.project
+.settings/
 
 # OS
 .DS_Store
