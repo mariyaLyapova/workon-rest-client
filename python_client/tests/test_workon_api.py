@@ -25,6 +25,7 @@ class TestWorkOnAPIInit(unittest.TestCase):
 
         self.assertEqual(api.base_url, "https://api.example.com")
         self.assertIsNone(api.key_id)
+        self.assertEqual(api.timeout, 30)  # Default timeout
         self.assertIsInstance(api.session, requests.Session)
         self.assertEqual(api.session.headers['Content-Type'], WorkOnAPI.CONTENT_TYPE_JSON)
         self.assertNotIn('KeyId', api.session.headers)
@@ -35,6 +36,7 @@ class TestWorkOnAPIInit(unittest.TestCase):
 
         self.assertEqual(api.base_url, "https://api.example.com")  # Should strip trailing slash
         self.assertEqual(api.key_id, "test-key-123")
+        self.assertEqual(api.timeout, 30)  # Default timeout
         self.assertEqual(api.session.headers['Content-Type'], WorkOnAPI.CONTENT_TYPE_JSON)
         self.assertEqual(api.session.headers['KeyId'], "test-key-123")
 
@@ -46,6 +48,16 @@ class TestWorkOnAPIInit(unittest.TestCase):
         self.assertEqual(WorkOnAPI.DEFAULT_PRIORITY, "default")
         self.assertEqual(WorkOnAPI.APPROVAL_HISTORY_YES, "yes")
         self.assertEqual(WorkOnAPI.CONTENT_TYPE_JSON, "application/json")
+
+    def test_init_with_custom_timeout(self):
+        """Test initialization with custom timeout value"""
+        api = WorkOnAPI("https://api.example.com", "test-key", timeout=60)
+
+        self.assertEqual(api.base_url, "https://api.example.com")
+        self.assertEqual(api.key_id, "test-key")
+        self.assertEqual(api.timeout, 60)  # Custom timeout
+        self.assertEqual(api.session.headers['Content-Type'], WorkOnAPI.CONTENT_TYPE_JSON)
+        self.assertEqual(api.session.headers['KeyId'], "test-key")
 
 
 class TestCreateRBGARequest(unittest.TestCase):
@@ -195,8 +207,8 @@ class TestGetRequestStatus(unittest.TestCase):
         self.assertEqual(result["status"], "In Progress")
         self.assertIn("internationalizedStatus", result)
 
-        # Verify correct URL was called
-        mock_get.assert_called_once_with("https://api.example.com/status/RBGA-12345")
+        # Verify correct URL was called with timeout
+        mock_get.assert_called_once_with("https://api.example.com/status/RBGA-12345", timeout=30)
 
     @patch('requests.Session.get')
     def test_get_request_status_not_found(self, mock_get):

@@ -9,7 +9,12 @@ from typing import Dict, Any, Optional, List
 
 
 class WorkOnAPI:
-    """Simple client for Bosch WorkOn REST API"""
+    """
+    Simple client for Bosch WorkOn REST API
+
+    Supports configurable timeouts for production reliability.
+    Default timeout is 30 seconds for all HTTP requests.
+    """
 
     # API Constants
     DEFAULT_SOURCE_SYSTEM = "WorkON"
@@ -21,16 +26,18 @@ class WorkOnAPI:
     # Content Type
     CONTENT_TYPE_JSON = "application/json"
 
-    def __init__(self, base_url: str, key_id: str = None):
+    def __init__(self, base_url: str, key_id: str = None, timeout: int = 30):
         """
         Initialize the WorkOn API client
 
         Args:
             base_url: The base URL for the WorkOn API
             key_id: Key ID for WorkOn API (required for authentication)
+            timeout: Request timeout in seconds (default: 30)
         """
         self.base_url = base_url.rstrip('/')
         self.key_id = key_id
+        self.timeout = timeout
         self.session = requests.Session()
 
         # Set up default headers
@@ -74,7 +81,7 @@ class WorkOnAPI:
         }
 
         try:
-            response = self.session.put(url, json=payload)
+            response = self.session.put(url, json=payload, timeout=self.timeout)
             response.raise_for_status()
             return response.json()
         except requests.exceptions.RequestException as e:
@@ -111,7 +118,7 @@ class WorkOnAPI:
         }
 
         try:
-            response = self.session.put(url, json=payload)
+            response = self.session.put(url, json=payload, timeout=self.timeout)
             response.raise_for_status()
             return response.json()
         except requests.exceptions.RequestException as e:
@@ -133,7 +140,7 @@ class WorkOnAPI:
         url = f"{self.base_url}/status/{request_key}"
 
         try:
-            response = self.session.get(url)
+            response = self.session.get(url, timeout=self.timeout)
             response.raise_for_status()
             return response.json()
         except requests.exceptions.RequestException as e:
@@ -167,7 +174,7 @@ class WorkOnAPI:
             payload["systemFields"] = system_fields
 
         try:
-            response = self.session.post(url, json=payload)
+            response = self.session.post(url, json=payload, timeout=self.timeout)
             response.raise_for_status()
             return response.json()
         except requests.exceptions.RequestException as e:
@@ -201,7 +208,7 @@ class WorkOnAPI:
             payload["attachmentName"] = attachment_name
 
         try:
-            response = self.session.post(url, json=payload)
+            response = self.session.post(url, json=payload, timeout=self.timeout)
             response.raise_for_status()
             return response.json()
         except requests.exceptions.RequestException as e:
@@ -340,8 +347,8 @@ if __name__ == "__main__":
         print("=== RBGA API Demo: 5 Core Operations (Python) ===\n")
 
         # Initialize API client - pointing to mock server
-        api_client = WorkOnAPI("http://localhost:5001", "test-key-id")
-        # For production: api_client = WorkOnAPI("https://workon-api.bosch.com", "your-key-id-here")
+        api_client = WorkOnAPI("http://localhost:5001", "test-key-id", timeout=30)
+        # For production: api_client = WorkOnAPI("https://workon-api.bosch.com", "your-key-id-here", timeout=30)
 
         # Example RBGA data structure according to documentation
         rbga_data = create_sample_rbga_data()

@@ -27,13 +27,19 @@ workon-rest-client/
 ├── java_client/                      # Java implementation
 │   ├── WorkOnAPI.java                 # Main Java client library
 │   ├── WorkOnAPIDemo.java            # Demo/test application
+│   ├── WorkOnAPI.class               # Compiled Java classes
+│   ├── WorkOnAPIDemo.class           # Compiled demo class
 │   └── lib/                          # Jackson JSON dependencies
 ├── mock-server/                      # Python Flask mock server
 │   ├── mock_workon_server.py         # Complete mock implementation
 │   ├── start_mock.sh                 # Server startup script
 │   └── stop_mock.sh                  # Server shutdown script
 └── python_client/                   # Python implementation
-    └── workon_api.py                 # Python client library with demo
+    ├── workon_api.py                 # Python client library with demo
+    ├── tests/                        # Comprehensive test suite
+    │   ├── test_workon_api.py         # Unit tests (18k+ lines)
+    │   └── test_integration.py       # Integration tests (16k+ lines)
+    └── venv/                         # Python virtual environment (optional)
 ```
 
 ## 🛠️ Prerequisites
@@ -205,7 +211,11 @@ WorkOnAPI apiClient = new WorkOnAPI("https://workon-api.bosch.com", null, "your-
 
 ### Python Client (Production)
 ```python
+# Default 30-second timeout
 api_client = WorkOnAPI("https://workon-api.bosch.com", "your-key-id-here")
+
+# Custom timeout for slow networks
+api_client = WorkOnAPI("https://workon-api.bosch.com", "your-key-id-here", timeout=60)
 ```
 
 ## 🧪 Mock Server Features
@@ -282,10 +292,12 @@ chmod +x start_mock.sh stop_mock.sh
 
 ### Python Features
 - **Type hints** for better code documentation
+- **Configurable timeouts** for production reliability (default: 30s)
 - **Clean error handling** with proper exception propagation
 - **Constants** for maintainable configuration
 - **Comprehensive docstrings** with examples
 - **Modern f-string** formatting
+- **Extensive test suite** with 34k+ lines of unit and integration tests
 
 ### Java Features
 - **Modern HTTP Client** (java.net.http)

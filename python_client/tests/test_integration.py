@@ -91,7 +91,7 @@ class TestWorkOnAPIIntegration(unittest.TestCase):
             if not cls.server_manager.start_server():
                 raise unittest.SkipTest("Could not start mock server for integration tests")
 
-        cls.api_client = WorkOnAPI("http://localhost:5001", "test-key-id")
+        cls.api_client = WorkOnAPI("http://localhost:5001", "test-key-id", timeout=30)
 
     @classmethod
     def tearDownClass(cls):
@@ -258,7 +258,7 @@ class TestWorkOnAPIIntegration(unittest.TestCase):
     def test_missing_auth_header_error(self):
         """Test that requests without proper authentication fail"""
         # Create client without KeyId
-        api_no_auth = WorkOnAPI("http://localhost:5001")
+        api_no_auth = WorkOnAPI("http://localhost:5001", timeout=30)
 
         rbga_data = {
             "rbga.field.description": "Test without auth",
@@ -361,7 +361,7 @@ class TestMockServerBehavior(unittest.TestCase):
         except requests.exceptions.RequestException:
             self.skipTest("Mock server not available")
 
-        self.api_client = WorkOnAPI("http://localhost:5001", "test-key-id")
+        self.api_client = WorkOnAPI("http://localhost:5001", "test-key-id", timeout=30)
 
     def test_request_counter_functionality(self):
         """Test that the mock server increments request counters"""
