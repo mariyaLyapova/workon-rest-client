@@ -45,6 +45,16 @@ This creates:
 
 ### 2. Configure API Endpoint
 
+**Option A: Quick Setup (Recommended)**
+```bash
+# Set both endpoint and key_id in one command
+python3 workon_cli.py config --setup https://workon-api.bosch.com your-api-key-here
+
+# For local testing
+python3 workon_cli.py config --setup http://localhost:5001 test-key-id
+```
+
+**Option B: Individual Settings**
 ```bash
 # For local testing (default)
 python3 workon_cli.py config --set endpoint http://localhost:5001
@@ -126,8 +136,24 @@ Generates template files you can customize for your requests.
 # Show current configuration
 python3 workon_cli.py config --show
 
-# Set configuration values
+# Quick setup: Set both endpoint and key_id in one command
+python3 workon_cli.py config --setup <endpoint> <key_id>
+
+# Set individual configuration values
 python3 workon_cli.py config --set <key> <value>
+```
+
+**Examples:**
+```bash
+# Quick setup for production
+python3 workon_cli.py config --setup https://workon-api.bosch.com your-api-key
+
+# Quick setup for local testing
+python3 workon_cli.py config --setup http://localhost:5001 test-key-id
+
+# Individual settings
+python3 workon_cli.py config --set endpoint https://workon-api.bosch.com
+python3 workon_cli.py config --set key_id your-api-key
 ```
 
 **Configuration Keys:**
@@ -184,6 +210,12 @@ python3 workon_cli.py status --request-id RBGA-12345
 
 ### Configuring for Production Use
 
+**Quick Setup:**
+```bash
+python3 workon_cli.py config --setup https://workon-api.bosch.com your-production-api-key
+```
+
+**Individual Settings:**
 ```bash
 python3 workon_cli.py config --set endpoint https://workon-api.bosch.com
 python3 workon_cli.py config --set key_id your-production-api-key

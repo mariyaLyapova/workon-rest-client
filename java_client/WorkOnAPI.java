@@ -29,7 +29,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 public class WorkOnAPI {
 
     private final String baseUrl;
-    private final String apiKey;
     private final String keyId;
     private final HttpClient httpClient;
     private final ObjectMapper objectMapper;
@@ -38,12 +37,10 @@ public class WorkOnAPI {
      * Initialize the WorkOn API client
      *
      * @param baseUrl The base URL for the WorkOn API
-     * @param apiKey Optional API key for authentication (can be null)
-     * @param keyId Optional Key ID for WorkOn API (can be null)
+     * @param keyId Key ID for WorkOn API authentication (can be null for testing)
      */
-    public WorkOnAPI(String baseUrl, String apiKey, String keyId) {
+    public WorkOnAPI(String baseUrl, String keyId) {
         this.baseUrl = baseUrl.endsWith("/") ? baseUrl.substring(0, baseUrl.length() - 1) : baseUrl;
-        this.apiKey = apiKey;
         this.keyId = keyId;
         this.httpClient = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(10))
@@ -63,13 +60,12 @@ public class WorkOnAPI {
     }
 
     /**
-     * Initialize the WorkOn API client (backward compatibility)
+     * Initialize the WorkOn API client without authentication
      *
      * @param baseUrl The base URL for the WorkOn API
-     * @param apiKey Optional API key for authentication (can be null)
      */
-    public WorkOnAPI(String baseUrl, String apiKey) {
-        this(baseUrl, apiKey, null);
+    public WorkOnAPI(String baseUrl) {
+        this(baseUrl, null);
     }
 
     /**

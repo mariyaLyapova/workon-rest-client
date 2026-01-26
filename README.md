@@ -103,9 +103,6 @@ cd mock-server
 | `GET` | `/status/<request_key>` | Get request status |
 | `POST` | `/workitemdetails/<request_key>` | Get request details |
 | `POST` | `/workitemattachments/<request_key>` | Get attachments |
-| `GET` | `/rbga/template` | Get RBGA template information |
-| `GET` | `/requests` | List all requests |
-| `GET` | `/health` | Health check |
 
 ## 🔧 Client Usage Examples
 
@@ -113,7 +110,7 @@ cd mock-server
 
 ```java
 // Initialize client
-WorkOnAPI apiClient = new WorkOnAPI("http://localhost:5001", null, "test-key-id");
+WorkOnAPI apiClient = new WorkOnAPI("http://localhost:5001", "test-key-id");
 
 // Create RBGA request
 Map<String, Object> rbgaData = createSampleRbgaData();
@@ -206,7 +203,7 @@ The RBGA (Request for Budget, Governance & Approval) template includes:
 
 ### Java Client (Production)
 ```java
-WorkOnAPI apiClient = new WorkOnAPI("https://workon-api.bosch.com", null, "your-key-id-here");
+WorkOnAPI apiClient = new WorkOnAPI("https://workon-api.bosch.com", "your-key-id-here");
 ```
 
 ### Python Client (Production)

@@ -285,6 +285,20 @@ class WorkOnCLI:
         self.save_config()
         print(f"✅ Configuration updated: {key} = {value}")
 
+    def setup_config(self, endpoint: str, key_id: str) -> None:
+        """Set both endpoint and key_id configuration in one command."""
+        print("⚙️  Setting up WorkOn CLI configuration...")
+
+        # Update both values
+        self.config['DEFAULT']['endpoint'] = endpoint
+        self.config['DEFAULT']['key_id'] = key_id
+        self.save_config()
+
+        print("✅ Configuration setup completed!")
+        print(f"📡 Endpoint: {endpoint}")
+        print(f"🔑 Key ID: {'*' * len(key_id) if key_id else '(not set)'}")
+        print("\n🚀 You can now create WorkOn requests using the CLI.")
+
 
 def main():
     """Main CLI entry point."""
@@ -311,7 +325,10 @@ Examples:
   # Show current configuration
   python workon_cli.py config --show
 
-  # Set configuration values
+  # Set up both endpoint and key_id in one command
+  python workon_cli.py config --setup https://workon-api.bosch.com your-api-key-here
+
+  # Set individual configuration values
   python workon_cli.py config --set endpoint https://workon-api.bosch.com
   python workon_cli.py config --set key_id your-api-key-here
         """)
@@ -344,6 +361,8 @@ Examples:
     config_group.add_argument('--show', action='store_true', help='Show current configuration')
     config_group.add_argument('--set', nargs=2, metavar=('KEY', 'VALUE'),
                              help='Set configuration value (e.g., endpoint https://api.example.com)')
+    config_group.add_argument('--setup', nargs=2, metavar=('ENDPOINT', 'KEY_ID'),
+                             help='Set both endpoint and key_id in one command (e.g., https://workon-api.bosch.com your-key-id)')
 
     args = parser.parse_args()
 
@@ -368,6 +387,9 @@ Examples:
             elif args.set:
                 key, value = args.set
                 cli.set_config(key, value)
+            elif args.setup:
+                endpoint, key_id = args.setup
+                cli.setup_config(endpoint, key_id)
 
     except KeyboardInterrupt:
         print("\n❌ Operation cancelled by user")

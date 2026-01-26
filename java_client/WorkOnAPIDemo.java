@@ -12,8 +12,8 @@ public class WorkOnAPIDemo {
             System.out.println("=== RBGA API Demo: 5 Core Operations (Java) ===\n");
 
             // Initialize API client - pointing to mock server
-            WorkOnAPI apiClient = new WorkOnAPI("http://localhost:5001", null, "test-key-id");
-            // For production: WorkOnAPI apiClient = new WorkOnAPI("https://workon-api.bosch.com", null, "your-key-id-here");
+            WorkOnAPI apiClient = new WorkOnAPI("http://localhost:5001", "test-key-id");
+            // For production: WorkOnAPI apiClient = new WorkOnAPI("https://workon-api.bosch.com", "your-key-id-here");
 
             // Example RBGA data structure according to documentation
             Map<String, Object> rbgaData = createSampleRbgaData();
