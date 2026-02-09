@@ -147,26 +147,55 @@ class WorkOnCLI:
 
                 # Display basic information
                 print(f"🆔 Request ID: {details.get('key', 'N/A')}")
-                print(f"📝 Summary: {details.get('fields', {}).get('summary', 'N/A')}")
-                print(f"📊 Status: {details.get('fields', {}).get('status', {}).get('name', 'N/A')}")
-                print(f"🎯 Priority: {details.get('fields', {}).get('priority', {}).get('name', 'N/A')}")
-                print(f"👤 Applicant: {details.get('fields', {}).get('customfield_10408', 'N/A')}")
-                print(f"📅 Created: {details.get('fields', {}).get('created', 'N/A')}")
-                print(f"📅 Updated: {details.get('fields', {}).get('updated', 'N/A')}")
+                print(f"📝 Summary: {details.get('summary', 'N/A')}")
+                print(f"📊 Status: {details.get('status', 'N/A')}")
+                print(f"🔗 Resolution: {details.get('resolution', 'N/A')}")
+                print(f"📅 Created: {details.get('created_at', 'N/A')}")
+                print(f"📅 Updated: {details.get('updated_at', 'N/A')}")
 
-                # Display description if available
-                description = details.get('fields', {}).get('description')
+                # Display description from data if available
+                data = details.get('data', {})
+                description = data.get('rbga.field.description')
                 if description:
                     print(f"📄 Description: {description}")
 
-                # Display custom fields
-                fields = details.get('fields', {})
-                custom_fields = {k: v for k, v in fields.items() if k.startswith('customfield_')}
-                if custom_fields:
-                    print("\n🔧 Custom Fields:")
-                    for field, value in custom_fields.items():
-                        if value is not None:
-                            print(f"  {field}: {value}")
+                # Display comments if available
+                comments = data.get('rbga.field.comments')
+                if comments:
+                    print(f"💬 Comments: {comments}")
+
+                # Display key RBGA fields
+                if data:
+                    print("\n🔧 RBGA Fields:")
+
+                    # Show workflow type
+                    workflow_type = data.get('rbga.field.workflowType')
+                    if workflow_type:
+                        print(f"  Workflow Type: {workflow_type}")
+
+                    # Show source system
+                    source_system = data.get('rbga.field.sourceSystem')
+                    if source_system:
+                        print(f"  Source System: {source_system}")
+
+                    # Show external link
+                    external_link = data.get('rbga.field.externalLink')
+                    if external_link:
+                        print(f"  External Link: {external_link}")
+
+                    # Show additional fields
+                    additional_fields = data.get('rbga.field.additionalFields', [])
+                    if additional_fields:
+                        print("  Additional Fields:")
+                        for field in additional_fields:
+                            print(f"    - {field.get('fields')}: {field.get('details')}")
+
+                    # Show approvers
+                    approver1 = data.get('rbga.field.approver1')
+                    if approver1 and approver1.get('approvers'):
+                        print(f"  Approvers (Level 1): {len(approver1['approvers'])} approver(s)")
+                        for idx, approver in enumerate(approver1['approvers'], 1):
+                            print(f"    {idx}. {approver.get('userid')}")
 
                 # Save detailed result to file
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
